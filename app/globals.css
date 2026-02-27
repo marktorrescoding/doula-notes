@@ -41,11 +41,14 @@ body {
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-/* Momentum scrolling on iOS */
+/* Momentum scrolling on iOS, no visible scrollbar */
 .scroll-ios {
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
+.scroll-ios::-webkit-scrollbar { display: none; }
 
 @media print {
   @page { margin: 1in; }
