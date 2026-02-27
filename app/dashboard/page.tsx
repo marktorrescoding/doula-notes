@@ -11,11 +11,9 @@ export default async function DashboardPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-
   const [{ data: clients }, { data: activeSessions }] = await Promise.all([
     supabase.from('clients').select('*').order('name', { ascending: true }),
-    supabase.from('sessions').select('id, client_id').gte('session_date', yesterday).is('completed_at', null),
+    supabase.from('sessions').select('id, client_id').eq('user_id', user.id).is('completed_at', null),
   ])
 
   const activeSessionMap = Object.fromEntries(

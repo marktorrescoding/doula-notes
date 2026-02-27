@@ -16,29 +16,18 @@ export async function startSession(formData: FormData) {
   if (!user) redirect('/login')
 
   const clientId = formData.get('client_id') as string
-  const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0]
 
-  // If there's already an active session within the last 24h, continue it
+  // If there's already an open session, go back to it
   const { data: openSessions } = await supabase
     .from('sessions')
     .select('id')
     .eq('client_id', clientId)
     .eq('user_id', user.id)
     .is('completed_at', null)
-    .gte('session_date', yesterday)
     .order('session_date', { ascending: false })
     .limit(1)
 
   if (openSessions && openSessions.length > 0) redirect(`/session/${openSessions[0].id}`)
-
-  // Auto-end any stale open sessions older than 24h
-  await supabase
-    .from('sessions')
-    .update({ completed_at: new Date().toISOString() })
-    .eq('client_id', clientId)
-    .eq('user_id', user.id)
-    .is('completed_at', null)
-    .lt('session_date', yesterday)
 
   const { data: session } = await supabase
     .from('sessions')

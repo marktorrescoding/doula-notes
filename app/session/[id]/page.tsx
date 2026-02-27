@@ -29,16 +29,6 @@ export default async function SessionPage({ params }: { params: Promise<{ id: st
 
   if (!session) notFound()
 
-  // Auto-end sessions that are more than 24 hours old and still open
-  if (!session.completed_at) {
-    const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-    if (session.session_date < yesterday) {
-      const completedAt = new Date().toISOString()
-      await supabase.from('sessions').update({ completed_at: completedAt }).eq('id', session.id)
-      session.completed_at = completedAt
-    }
-  }
-
   return (
     <SessionView
       session={session}
