@@ -11,10 +11,14 @@ export default async function DashboardPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const { data: clients } = await supabase
-    .from('clients')
-    .select('*')
-    .order('name', { ascending: true })
+  const [{ data: clients }, { data: activeSessions }] = await Promise.all([
+    supabase.from('clients').select('*').order('name', { ascending: true }),
+    supabase.from('sessions').select('id, client_id').eq('user_id', user.id).is('completed_at', null),
+  ])
+
+  const activeSessionMap = Object.fromEntries(
+    (activeSessions ?? []).map(s => [s.client_id, s.id])
+  )
 
   return (
     <div className="h-screen flex flex-col overflow-hidden bg-stone-50 dark:bg-stone-950">
@@ -43,7 +47,7 @@ export default async function DashboardPage() {
         </div>
 
         {clients && clients.length > 0 ? (
-          <ClientList clients={clients} />
+          <ClientList clients={clients} initialActiveSessionMap={activeSessionMap} />
         ) : (
           <div className="text-center py-16 text-stone-400">
             <p className="text-lg">No clients yet</p>
