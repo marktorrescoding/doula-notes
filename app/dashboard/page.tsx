@@ -1,6 +1,7 @@
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import { cookies } from 'next/headers'
 import { signOut } from '@/app/actions'
 import ClientList from './ClientList'
 
@@ -11,14 +12,17 @@ export default async function DashboardPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const [{ data: clients }, { data: activeSessions }] = await Promise.all([
-    supabase.from('clients').select('*').order('name', { ascending: true }),
-    supabase.from('sessions').select('id, client_id').eq('user_id', user.id).is('completed_at', null),
-  ])
+  const cookieStore = await cookies()
+  let activeSessionMap: Record<string, string> = {}
+  try {
+    const val = cookieStore.get('active_sessions')?.value
+    if (val) activeSessionMap = JSON.parse(val)
+  } catch {}
 
-  const activeSessionMap = Object.fromEntries(
-    (activeSessions ?? []).map(s => [s.client_id, s.id])
-  )
+  const { data: clients } = await supabase
+    .from('clients')
+    .select('*')
+    .order('name', { ascending: true })
 
   return (
     <div className="h-screen flex flex-col overflow-hidden bg-stone-50 dark:bg-stone-950">
@@ -47,7 +51,7 @@ export default async function DashboardPage() {
         </div>
 
         {clients && clients.length > 0 ? (
-          <ClientList clients={clients} initialActiveSessionMap={activeSessionMap} />
+          <ClientList clients={clients ?? []} initialActiveSessionMap={activeSessionMap} />
         ) : (
           <div className="text-center py-16 text-stone-400">
             <p className="text-lg">No clients yet</p>

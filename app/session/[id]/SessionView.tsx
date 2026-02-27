@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import Link from 'next/link'
-import { endSession } from '@/app/actions'
+import { endSession, finishSessionWithSMS } from '@/app/actions'
 
 type Note = { id: string; content: string; created_at: string }
 type Session = {
@@ -156,8 +156,7 @@ export default function SessionView({
   }
 
   async function sendSMS() {
-    const supabase = createClient()
-    await supabase.from('sessions').update({ completed_at: new Date().toISOString() }).eq('id', session.id)
+    await finishSessionWithSMS(session.id, session.client_id)
     window.location.href = `sms:${session.clients.phone}&body=${encodeURIComponent(reviewText)}`
   }
 
