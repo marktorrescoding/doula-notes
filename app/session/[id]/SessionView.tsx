@@ -11,6 +11,65 @@ type Session = {
   clients: { name: string; phone: string | null }
 }
 
+const QUICK_NOTES: Record<string, string[]> = {
+  Feeding: [
+    'Good latch observed',
+    'Latch needs improvement — repositioning attempted',
+    'Breastfeeding both sides',
+    'Signs of engorgement noted',
+    'Low supply concerns discussed',
+    'Pumping session completed',
+    'Paced bottle feeding practiced',
+    'Hunger cues identified by parent',
+    'Feeding schedule on track',
+  ],
+  Infant: [
+    'Wet diaper',
+    'Dirty diaper',
+    'Sleeping well between feeds',
+    'Fussy — difficult to settle',
+    'Jaundice — monitoring color',
+    'Umbilical cord healing well',
+    'Swaddle settled baby',
+    'White noise effective',
+    'Good color and tone',
+    'Wake windows on track',
+  ],
+  Parent: [
+    'Parent resting when baby sleeps',
+    'Eating and hydrating well',
+    'Signs of overwhelm noted',
+    'Mood positive',
+    'PPD/PPA concerns — resources discussed',
+    'Partner engaged and supportive',
+    'Gaining confidence with baby care',
+    'Perineal healing progressing well',
+    'C-section incision healing well',
+    'Fatigue significant — rest prioritized',
+  ],
+  Education: [
+    'Safe sleep environment reviewed',
+    'Swaddling practiced together',
+    'Burping techniques demonstrated',
+    'Skin-to-skin encouraged',
+    'Wake windows discussed',
+    'Diaper change technique reviewed',
+    'Soothing techniques practiced',
+    'Pelvic floor recovery discussed',
+    'Newborn cues reviewed',
+  ],
+  Referral: [
+    'Referred to IBCLC',
+    'Referred to pelvic floor PT',
+    'Referred to therapist',
+    'Pediatrician follow-up recommended',
+    'Previous referral followed up',
+    'Support group recommended',
+  ],
+}
+
+const CATEGORIES = Object.keys(QUICK_NOTES)
+
 export default function SessionView({
   session,
   initialNotes,
@@ -21,6 +80,7 @@ export default function SessionView({
   const [notes, setNotes] = useState<Note[]>(initialNotes)
   const [input, setInput] = useState('')
   const [adding, setAdding] = useState(false)
+  const [activeCategory, setActiveCategory] = useState<string | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
 
@@ -32,23 +92,32 @@ export default function SessionView({
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [notes])
 
-  async function addNote(e: React.FormEvent) {
-    e.preventDefault()
-    const content = input.trim()
-    if (!content) return
+  async function saveNote(content: string) {
+    if (!content.trim()) return
     setAdding(true)
-    setInput('')
 
     const supabase = createClient()
     const { data } = await supabase
       .from('session_notes')
-      .insert({ session_id: session.id, content })
+      .insert({ session_id: session.id, content: content.trim() })
       .select()
       .single()
 
     if (data) setNotes(prev => [...prev, data])
     setAdding(false)
+  }
+
+  async function addNote(e: React.FormEvent) {
+    e.preventDefault()
+    const content = input.trim()
+    if (!content) return
+    setInput('')
+    await saveNote(content)
     inputRef.current?.focus()
+  }
+
+  async function addQuickNote(phrase: string) {
+    await saveNote(phrase)
   }
 
   function finishSession() {
@@ -77,10 +146,12 @@ export default function SessionView({
       </header>
 
       <main className="flex-1 max-w-2xl w-full mx-auto px-6 py-6 flex flex-col">
+
+        {/* Notes list */}
         <div className="flex-1 mb-4">
           {notes.length === 0 ? (
             <p className="text-stone-400 text-sm text-center py-16">
-              No notes yet — add your first one below
+              No notes yet — tap a category or type below
             </p>
           ) : (
             <ul className="flex flex-col gap-3">
@@ -100,12 +171,46 @@ export default function SessionView({
         </div>
 
         <div className="flex flex-col gap-3">
+          {/* Category tabs */}
+          <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
+            {CATEGORIES.map(cat => (
+              <button
+                key={cat}
+                onClick={() => setActiveCategory(activeCategory === cat ? null : cat)}
+                className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                  activeCategory === cat
+                    ? 'bg-stone-800 text-white'
+                    : 'bg-white border border-stone-200 text-stone-600 hover:border-stone-300'
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+
+          {/* Quick-tap phrases */}
+          {activeCategory && (
+            <div className="flex flex-wrap gap-2">
+              {QUICK_NOTES[activeCategory].map(phrase => (
+                <button
+                  key={phrase}
+                  onClick={() => addQuickNote(phrase)}
+                  disabled={adding}
+                  className="px-3 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs rounded-lg transition-colors disabled:opacity-40 text-left"
+                >
+                  {phrase}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Free text input */}
           <form onSubmit={addNote} className="flex gap-2">
             <input
               ref={inputRef}
               value={input}
               onChange={e => setInput(e.target.value)}
-              placeholder="Type a note and press Enter..."
+              placeholder="Or type a custom note and press Enter..."
               disabled={adding}
               className="flex-1 border border-stone-300 rounded-lg px-3 py-2 text-sm text-stone-900 bg-white focus:outline-none focus:ring-2 focus:ring-stone-400"
             />
@@ -118,6 +223,7 @@ export default function SessionView({
             </button>
           </form>
 
+          {/* Finish session */}
           {notes.length > 0 && session.clients.phone && (
             <button
               onClick={finishSession}
