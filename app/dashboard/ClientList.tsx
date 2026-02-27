@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { createClient } from '@/utils/supabase/client'
+import { startSession } from '@/app/actions'
 
 type Client = {
   id: string
@@ -19,57 +19,15 @@ export default function ClientList({
   initialActiveSessionMap: Record<string, string>
 }) {
   const [search, setSearch] = useState('')
-  const [activeSessionMap, setActiveSessionMap] = useState(initialActiveSessionMap)
-  const [loading, setLoading] = useState<string | null>(null)
 
   useEffect(() => {
-    // If the browser restores this page from bfcache (back button),
-    // the server data is stale — force a real reload to get fresh session state
+    // Force a real reload if browser restores this page from bfcache (back button/swipe)
     const handlePageShow = (e: PageTransitionEvent) => {
       if (e.persisted) window.location.reload()
     }
     window.addEventListener('pageshow', handlePageShow)
     return () => window.removeEventListener('pageshow', handlePageShow)
   }, [])
-
-  async function handleStart(clientId: string) {
-    setLoading(clientId)
-    const supabase = createClient()
-
-    // Check for existing open session
-    const { data: existing } = await supabase
-      .from('sessions')
-      .select('id')
-      .eq('client_id', clientId)
-      .is('completed_at', null)
-      .limit(1)
-
-    if (existing && existing.length > 0) {
-      setActiveSessionMap(prev => ({ ...prev, [clientId]: existing[0].id }))
-      window.location.href = `/session/${existing[0].id}`
-      return
-    }
-
-    // Create new session
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) { setLoading(null); return }
-
-    const { data: session } = await supabase
-      .from('sessions')
-      .insert({
-        user_id: user.id,
-        client_id: clientId,
-        session_date: new Date().toISOString().split('T')[0],
-      })
-      .select('id')
-      .single()
-
-    if (session) {
-      setActiveSessionMap(prev => ({ ...prev, [clientId]: session.id }))
-      window.location.href = `/session/${session.id}`
-    }
-    setLoading(null)
-  }
 
   const filtered = clients.filter(c =>
     c.name.toLowerCase().includes(search.toLowerCase())
@@ -88,7 +46,7 @@ export default function ClientList({
       {filtered.length > 0 ? (
         <div className="flex flex-col gap-3">
           {filtered.map(client => {
-            const activeSessionId = activeSessionMap[client.id]
+            const activeSessionId = initialActiveSessionMap[client.id]
             return (
               <div
                 key={client.id}
@@ -129,13 +87,15 @@ export default function ClientList({
                         Continue
                       </a>
                     ) : (
-                      <button
-                        onClick={() => handleStart(client.id)}
-                        disabled={loading === client.id}
-                        className="flex-1 sm:flex-none bg-emerald-600 text-white text-sm font-medium px-3 py-2 rounded-lg hover:bg-emerald-700 disabled:opacity-60 transition-colors"
-                      >
-                        {loading === client.id ? '...' : 'Start Session'}
-                      </button>
+                      <form action={startSession} className="flex-1 sm:flex-none">
+                        <input type="hidden" name="client_id" value={client.id} />
+                        <button
+                          type="submit"
+                          className="w-full bg-emerald-600 text-white text-sm font-medium px-3 py-2 rounded-lg hover:bg-emerald-700 transition-colors"
+                        >
+                          Start Session
+                        </button>
+                      </form>
                     )}
                   </div>
                 </div>
