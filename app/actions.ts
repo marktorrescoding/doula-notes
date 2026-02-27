@@ -27,3 +27,11 @@ export async function startSession(formData: FormData) {
   if (session) redirect(`/session/${session.id}`)
   redirect('/dashboard')
 }
+
+export async function endSession(formData: FormData) {
+  const supabase = await createClient()
+  const sessionId = formData.get('session_id') as string
+  const clientId = formData.get('client_id') as string
+  await supabase.from('sessions').update({ completed_at: new Date().toISOString() }).eq('id', sessionId)
+  redirect(`/clients/${clientId}`)
+}

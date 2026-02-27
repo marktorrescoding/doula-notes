@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import Link from 'next/link'
+import { endSession } from '@/app/actions'
 
 type Note = { id: string; content: string; created_at: string }
 type Session = {
@@ -154,7 +155,9 @@ export default function SessionView({
     setShowReview(true)
   }
 
-  function sendSMS() {
+  async function sendSMS() {
+    const supabase = createClient()
+    await supabase.from('sessions').update({ completed_at: new Date().toISOString() }).eq('id', session.id)
     window.location.href = `sms:${session.clients.phone}&body=${encodeURIComponent(reviewText)}`
   }
 
@@ -346,12 +349,16 @@ export default function SessionView({
                 Finish Session — Text Notes to {session.clients.name}
               </button>
             )}
-            <a
-              href={`/clients/${session.client_id}`}
-              className="w-full text-center block text-sm text-stone-400 dark:text-stone-500 hover:text-stone-600 dark:hover:text-stone-300 py-1 transition-colors"
-            >
-              End session without texting
-            </a>
+            <form action={endSession} className="w-full">
+              <input type="hidden" name="session_id" value={session.id} />
+              <input type="hidden" name="client_id" value={session.client_id} />
+              <button
+                type="submit"
+                className="w-full text-center text-sm text-stone-400 dark:text-stone-500 hover:text-stone-600 dark:hover:text-stone-300 py-1 transition-colors"
+              >
+                End session without texting
+              </button>
+            </form>
           </div>
         </main>
       </div>

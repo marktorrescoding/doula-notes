@@ -13,7 +13,7 @@ export default async function DashboardPage() {
 
   const [{ data: clients }, { data: todaySessions }] = await Promise.all([
     supabase.from('clients').select('*').order('name', { ascending: true }),
-    supabase.from('sessions').select('id, client_id').eq('session_date', today),
+    supabase.from('sessions').select('id, client_id').eq('session_date', today).is('completed_at', null),
   ])
 
   const activeSessionMap = Object.fromEntries(
