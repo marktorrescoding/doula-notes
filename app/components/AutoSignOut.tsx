@@ -8,7 +8,7 @@ const TIMEOUT_MS = 30 * 60 * 1000 // 30 minutes
 
 export default function AutoSignOut() {
   const router = useRouter()
-  const timerRef = useRef<ReturnType<typeof setTimeout>>()
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     const reset = () => {
