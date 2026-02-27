@@ -163,8 +163,8 @@ export default function SessionView({
 
   return (
     <>
-      <div className="min-h-screen bg-stone-50 dark:bg-stone-950 flex flex-col print:bg-white">
-        <header className="bg-white dark:bg-stone-900 border-b border-stone-200 dark:border-stone-700 px-6 py-4 flex items-center justify-between print:hidden">
+      <div className="h-screen bg-stone-50 dark:bg-stone-950 flex flex-col print:bg-white overflow-hidden">
+        <header className="bg-white dark:bg-stone-900 border-b border-stone-200 dark:border-stone-700 px-6 py-4 flex items-center justify-between print:hidden pt-safe shrink-0">
           <Link href="/dashboard" className="text-sm text-stone-500 dark:text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 transition-colors">
             ← Clients
           </Link>
@@ -196,9 +196,9 @@ export default function SessionView({
           </p>
         </div>
 
-        <main className="flex-1 max-w-2xl w-full mx-auto px-6 py-6 flex flex-col print:max-w-none print:px-8">
+        <main className="flex-1 max-w-2xl w-full mx-auto px-6 py-6 flex flex-col print:max-w-none print:px-8 overflow-hidden">
           {/* Notes list */}
-          <div className="flex-1 mb-4">
+          <div className="flex-1 mb-4 overflow-y-auto scroll-ios">
             {notes.length === 0 ? (
               <p className="text-stone-400 text-sm text-center py-16 print:hidden">
                 No notes yet — tap a category or type below
@@ -261,7 +261,7 @@ export default function SessionView({
           </div>
 
           {/* Input area — hidden when printing */}
-          <div className="flex flex-col gap-3 print:hidden">
+          <div className="flex flex-col gap-3 print:hidden pb-safe shrink-0">
             {/* Category tabs */}
             <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
               {BUILT_IN_CATEGORIES.map(cat => (

@@ -22,7 +22,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-stone-50 dark:bg-stone-950">
-      <header className="bg-white dark:bg-stone-900 border-b border-stone-200 dark:border-stone-700 px-6 py-4 flex items-center justify-between">
+      <header className="bg-white dark:bg-stone-900 border-b border-stone-200 dark:border-stone-700 px-6 py-4 flex items-center justify-between pt-safe">
         <h1 className="text-lg font-semibold text-stone-800 dark:text-stone-100">Doula Notes</h1>
         <div className="flex items-center gap-4">
           <span className="text-sm text-stone-400">{user.email}</span>
