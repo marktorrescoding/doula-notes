@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { startSession } from '@/app/actions'
+import { createClient } from '@/utils/supabase/client'
 
 type Client = {
   id: string
@@ -11,14 +12,20 @@ type Client = {
   next_visit_date: string | null
 }
 
-export default function ClientList({
-  clients,
-  activeSessionMap,
-}: {
-  clients: Client[]
-  activeSessionMap: Record<string, string>
-}) {
+export default function ClientList({ clients }: { clients: Client[] }) {
   const [search, setSearch] = useState('')
+  const [activeSessionMap, setActiveSessionMap] = useState<Record<string, string>>({})
+
+  useEffect(() => {
+    const supabase = createClient()
+    supabase
+      .from('sessions')
+      .select('id, client_id')
+      .is('completed_at', null)
+      .then(({ data }) => {
+        if (data) setActiveSessionMap(Object.fromEntries(data.map(s => [s.client_id, s.id])))
+      })
+  }, [])
 
   const filtered = clients.filter(c =>
     c.name.toLowerCase().includes(search.toLowerCase())
