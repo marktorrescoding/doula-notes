@@ -290,6 +290,12 @@ export default function SessionView({
                   {cat.name}
                 </button>
               ))}
+              <Link
+                href="/settings/categories"
+                className="shrink-0 px-3 py-1.5 rounded-full text-xs font-medium bg-white dark:bg-stone-800 border border-dashed border-stone-300 dark:border-stone-600 text-stone-400 dark:text-stone-500 hover:border-stone-400 hover:text-stone-600 dark:hover:text-stone-300 transition-colors"
+              >
+                + custom
+              </Link>
             </div>
 
             {/* Quick-tap phrases */}
