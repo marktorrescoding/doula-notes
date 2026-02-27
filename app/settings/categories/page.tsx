@@ -24,7 +24,7 @@ export default async function CategoriesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-stone-50 dark:bg-stone-950">
+    <div className="h-screen flex flex-col overflow-hidden bg-stone-50 dark:bg-stone-950">
       <header className="bg-white dark:bg-stone-900 border-b border-stone-200 dark:border-stone-700 px-6 py-4 flex items-center justify-between">
         <Link href="/dashboard" className="text-sm text-stone-500 dark:text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 transition-colors">
           ← Back
@@ -33,7 +33,7 @@ export default async function CategoriesPage() {
         <div className="w-16" />
       </header>
 
-      <main className="max-w-2xl mx-auto px-6 py-8">
+      <main className="flex-1 overflow-y-auto scroll-ios"><div className="max-w-2xl mx-auto px-6 py-8">
         <div className="mb-6">
           <h2 className="text-xl font-semibold text-stone-800 dark:text-stone-100 mb-1">Custom Categories</h2>
           <p className="text-sm text-stone-500 dark:text-stone-400">Create your own note categories and phrases that appear in every session alongside the built-in ones.</p>
@@ -87,7 +87,7 @@ export default async function CategoriesPage() {
         ) : (
           <p className="text-center py-12 text-stone-400 text-sm">No custom categories yet</p>
         )}
-      </main>
+      </div></main>
     </div>
   )
 }

@@ -21,11 +21,11 @@ export default async function DashboardPage() {
   )
 
   return (
-    <div className="min-h-screen bg-stone-50 dark:bg-stone-950">
-      <header className="bg-white dark:bg-stone-900 border-b border-stone-200 dark:border-stone-700 px-6 py-4 flex items-center justify-between pt-safe">
+    <div className="h-screen flex flex-col overflow-hidden bg-stone-50 dark:bg-stone-950">
+      <header className="shrink-0 bg-white dark:bg-stone-900 border-b border-stone-200 dark:border-stone-700 px-6 py-4 flex items-center justify-between pt-safe">
         <h1 className="text-lg font-semibold text-stone-800 dark:text-stone-100">Doula Notes</h1>
         <div className="flex items-center gap-4">
-          <span className="text-sm text-stone-400">{user.email}</span>
+          <span className="text-sm text-stone-400 hidden sm:inline truncate max-w-[180px]">{user.email}</span>
           <form action={signOut}>
             <button className="text-sm text-stone-500 dark:text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 transition-colors">
               Sign out
@@ -34,7 +34,8 @@ export default async function DashboardPage() {
         </div>
       </header>
 
-      <main className="max-w-2xl mx-auto px-6 py-8">
+      <main className="flex-1 overflow-y-auto scroll-ios">
+        <div className="max-w-2xl mx-auto px-6 py-8">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold text-stone-800 dark:text-stone-100">Clients</h2>
           <Link
@@ -61,6 +62,7 @@ export default async function DashboardPage() {
           <Link href="/privacy" className="text-xs text-stone-400 dark:text-stone-500 hover:text-stone-600 dark:hover:text-stone-300 transition-colors">
             Privacy Policy
           </Link>
+        </div>
         </div>
       </main>
     </div>

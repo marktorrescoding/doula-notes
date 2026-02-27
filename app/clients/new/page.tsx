@@ -25,14 +25,14 @@ export default async function NewClientPage() {
   const inputClass = "w-full border border-stone-300 dark:border-stone-600 rounded-lg px-3 py-2 text-sm text-stone-900 dark:text-stone-100 bg-white dark:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-stone-400 placeholder:text-stone-400"
 
   return (
-    <div className="min-h-screen bg-stone-50 dark:bg-stone-950">
-      <header className="bg-white dark:bg-stone-900 border-b border-stone-200 dark:border-stone-700 px-6 py-4">
+    <div className="h-screen flex flex-col overflow-hidden bg-stone-50 dark:bg-stone-950">
+      <header className="shrink-0 bg-white dark:bg-stone-900 border-b border-stone-200 dark:border-stone-700 px-6 py-4 pt-safe">
         <Link href="/dashboard" className="text-sm text-stone-500 dark:text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 transition-colors">
           ← Back
         </Link>
       </header>
 
-      <main className="max-w-2xl mx-auto px-6 py-8">
+      <main className="flex-1 overflow-y-auto scroll-ios"><div className="max-w-2xl mx-auto px-6 py-8">
         <h2 className="text-xl font-semibold text-stone-800 dark:text-stone-100 mb-6">Add Client</h2>
 
         <form action={createClientAction} className="bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-700 p-6 flex flex-col gap-4">
@@ -72,7 +72,7 @@ export default async function NewClientPage() {
             Save Client
           </button>
         </form>
-      </main>
+      </div></main>
     </div>
   )
 }

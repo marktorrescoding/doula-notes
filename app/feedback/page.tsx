@@ -21,14 +21,14 @@ export default async function FeedbackPage() {
   const { data: { user } } = await supabase.auth.getUser()
 
   return (
-    <div className="min-h-screen bg-stone-50 dark:bg-stone-950">
-      <header className="bg-white dark:bg-stone-900 border-b border-stone-200 dark:border-stone-700 px-6 py-4">
+    <div className="h-screen flex flex-col overflow-hidden bg-stone-50 dark:bg-stone-950">
+      <header className="shrink-0 bg-white dark:bg-stone-900 border-b border-stone-200 dark:border-stone-700 px-6 py-4 pt-safe">
         <Link href="/dashboard" className="text-sm text-stone-500 dark:text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 transition-colors">
           ← Back
         </Link>
       </header>
 
-      <main className="max-w-2xl mx-auto px-6 py-8">
+      <main className="flex-1 overflow-y-auto scroll-ios"><div className="max-w-2xl mx-auto px-6 py-8">
         <h2 className="text-xl font-semibold text-stone-800 dark:text-stone-100 mb-2">Feedback</h2>
         <p className="text-sm text-stone-500 dark:text-stone-400 mb-6">Bug reports, feature ideas, questions, or requests to delete your account — send them here.</p>
 
@@ -54,7 +54,7 @@ export default async function FeedbackPage() {
             </button>
           </form>
         )}
-      </main>
+      </div></main>
     </div>
   )
 }

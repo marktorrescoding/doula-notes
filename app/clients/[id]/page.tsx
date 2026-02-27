@@ -31,7 +31,7 @@ export default async function ClientPage({ params }: { params: Promise<{ id: str
   }
 
   return (
-    <div className="min-h-screen bg-stone-50 dark:bg-stone-950">
+    <div className="h-screen flex flex-col overflow-hidden bg-stone-50 dark:bg-stone-950">
       <header className="bg-white dark:bg-stone-900 border-b border-stone-200 dark:border-stone-700 px-6 py-4 flex items-center justify-between">
         <Link href="/dashboard" className="text-sm text-stone-500 dark:text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 transition-colors">
           ← Clients
@@ -55,7 +55,7 @@ export default async function ClientPage({ params }: { params: Promise<{ id: str
         </div>
       </header>
 
-      <main className="max-w-2xl mx-auto px-6 py-8">
+      <main className="flex-1 overflow-y-auto scroll-ios"><div className="max-w-2xl mx-auto px-6 py-8">
         {/* Client profile */}
         <div className="bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-700 p-6 mb-8">
           <h2 className="text-xl font-semibold text-stone-800 dark:text-stone-100 mb-4">{client.name}</h2>
@@ -127,7 +127,7 @@ export default async function ClientPage({ params }: { params: Promise<{ id: str
         ) : (
           <p className="text-center py-12 text-stone-400 text-sm">No sessions yet</p>
         )}
-      </main>
+      </div></main>
     </div>
   )
 }

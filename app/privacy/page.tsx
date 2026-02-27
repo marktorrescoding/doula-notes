@@ -2,7 +2,7 @@ import Link from 'next/link'
 
 export default function PrivacyPage() {
   return (
-    <div className="min-h-screen bg-stone-50 dark:bg-stone-950">
+    <div className="h-screen flex flex-col overflow-hidden bg-stone-50 dark:bg-stone-950">
       <header className="bg-white dark:bg-stone-900 border-b border-stone-200 dark:border-stone-700 px-6 py-4 flex items-center justify-between">
         <Link href="/dashboard" className="text-sm text-stone-500 dark:text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 transition-colors">
           ← Back
@@ -55,7 +55,7 @@ export default function PrivacyPage() {
             <p className="text-sm text-stone-600 dark:text-stone-300 leading-relaxed">Questions about this policy? Use the <Link href="/feedback" className="text-emerald-600 dark:text-emerald-400 underline">feedback form</Link> to reach us.</p>
           </section>
         </div>
-      </main>
+      </div></main>
     </div>
   )
 }
