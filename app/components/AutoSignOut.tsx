@@ -8,12 +8,12 @@ const TIMEOUT_MS = 30 * 60 * 1000 // 30 minutes
 
 export default function AutoSignOut() {
   const router = useRouter()
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const timerRef = useRef<number | undefined>(undefined)
 
   useEffect(() => {
     const reset = () => {
-      clearTimeout(timerRef.current)
-      timerRef.current = setTimeout(async () => {
+      window.clearTimeout(timerRef.current)
+      timerRef.current = window.setTimeout(async () => {
         const supabase = createClient()
         await supabase.auth.signOut()
         router.push('/login')
@@ -25,7 +25,7 @@ export default function AutoSignOut() {
     reset()
 
     return () => {
-      clearTimeout(timerRef.current)
+      window.clearTimeout(timerRef.current)
       events.forEach(e => window.removeEventListener(e, reset))
     }
   }, [router])
