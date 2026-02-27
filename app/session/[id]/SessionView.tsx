@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import Link from 'next/link'
-import { endSession, finishSessionWithSMS } from '@/app/actions'
+import { endSession, finishSessionWithSMS, saveClientPhone } from '@/app/actions'
 
 type Note = { id: string; content: string; created_at: string }
 type Session = {
@@ -94,6 +94,8 @@ export default function SessionView({
   const [editingContent, setEditingContent] = useState('')
   const [showReview, setShowReview] = useState(false)
   const [reviewText, setReviewText] = useState('')
+  const [showPhonePrompt, setShowPhonePrompt] = useState(false)
+  const [phoneInput, setPhoneInput] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
 
@@ -146,23 +148,35 @@ export default function SessionView({
     setNotes(prev => prev.filter(n => n.id !== noteId))
   }
 
-  function openReview() {
+  function buildReviewText() {
     const date = new Date(session.session_date + 'T00:00:00').toLocaleDateString('en-US', {
       month: 'long', day: 'numeric', year: 'numeric',
     })
     const noteList = notes.map(n => `• ${n.content}`).join('\n')
-    setReviewText(`Hi ${session.clients.name}, here are your visit notes from ${date}:\n\n${noteList}`)
+    return `Hi ${session.clients.name}, here are your visit notes from ${date}:\n\n${noteList}`
+  }
+
+  function openReview() {
+    if (!session.clients?.phone) {
+      setShowPhonePrompt(true)
+      return
+    }
+    setReviewText(buildReviewText())
+    setShowReview(true)
+  }
+
+  async function submitPhone() {
+    if (!phoneInput.trim()) return
+    await saveClientPhone(session.client_id, phoneInput.trim())
+    session.clients.phone = phoneInput.trim()
+    setShowPhonePrompt(false)
+    setReviewText(buildReviewText())
     setShowReview(true)
   }
 
   async function sendSMS() {
     await finishSessionWithSMS(session.id, session.client_id)
-    if (session.clients?.phone) {
-      window.location.href = `sms:${session.clients.phone}&body=${encodeURIComponent(reviewText)}`
-    } else {
-      await navigator.clipboard.writeText(reviewText)
-      window.location.href = '/dashboard'
-    }
+    window.location.href = `sms:${session.clients.phone}&body=${encodeURIComponent(reviewText)}`
   }
 
   return (
@@ -351,29 +365,75 @@ export default function SessionView({
               </button>
             </form>
 
-            {notes.length > 0 && (
-              <button
-                onClick={openReview}
-                className="w-full bg-emerald-600 text-white rounded-lg py-3 text-sm font-medium hover:bg-emerald-700 transition-colors"
+            <div className="flex flex-col gap-2 pt-1">
+              <a
+                href="/dashboard"
+                className="w-full text-center text-sm font-medium px-3 py-2.5 rounded-lg border border-stone-200 dark:border-stone-700 text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors"
               >
-                {session.clients?.phone
-                  ? `Finish Session — Text Notes to ${session.clients.name}`
-                  : 'Finish Session — Copy Notes'}
-              </button>
-            )}
-            <form action={endSession} className="w-full">
-              <input type="hidden" name="session_id" value={session.id} />
-              <input type="hidden" name="client_id" value={session.client_id} />
-              <button
-                type="submit"
-                className="w-full text-center text-sm text-stone-400 dark:text-stone-500 hover:text-stone-600 dark:hover:text-stone-300 py-1 transition-colors"
-              >
-                End session without texting
-              </button>
-            </form>
+                ← Back to Dashboard
+              </a>
+              {notes.length > 0 && (
+                <button
+                  onClick={openReview}
+                  className="w-full bg-emerald-600 text-white rounded-lg py-2.5 text-sm font-medium hover:bg-emerald-700 transition-colors"
+                >
+                  {session.clients?.phone
+                    ? `Finish & Text Notes to ${session.clients.name}`
+                    : 'Finish & Text Notes'}
+                </button>
+              )}
+              <form action={endSession} className="w-full">
+                <input type="hidden" name="session_id" value={session.id} />
+                <input type="hidden" name="client_id" value={session.client_id} />
+                <button
+                  type="submit"
+                  className="w-full text-center text-sm text-stone-400 dark:text-stone-500 hover:text-stone-600 dark:hover:text-stone-300 py-1 transition-colors"
+                >
+                  End session without texting
+                </button>
+              </form>
+            </div>
           </div>
         </main>
       </div>
+
+      {/* Phone prompt modal */}
+      {showPhonePrompt && (
+        <div className="fixed inset-0 bg-black/50 flex items-end sm:items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-stone-900 rounded-2xl w-full max-w-sm p-6 flex flex-col gap-4">
+            <div>
+              <h3 className="font-semibold text-stone-800 dark:text-stone-100">Add Phone Number</h3>
+              <p className="text-sm text-stone-500 dark:text-stone-400 mt-1">
+                Enter {session.clients.name}&apos;s phone number to send notes by text.
+              </p>
+            </div>
+            <input
+              type="tel"
+              autoFocus
+              value={phoneInput}
+              onChange={e => setPhoneInput(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && submitPhone()}
+              placeholder="e.g. 555-867-5309"
+              className="w-full border border-stone-300 dark:border-stone-600 rounded-lg px-3 py-2 text-sm text-stone-900 dark:text-stone-100 bg-white dark:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-stone-400 placeholder:text-stone-400"
+            />
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowPhonePrompt(false)}
+                className="flex-1 border border-stone-200 dark:border-stone-600 text-stone-600 dark:text-stone-300 rounded-lg py-2 text-sm font-medium hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={submitPhone}
+                disabled={!phoneInput.trim()}
+                className="flex-1 bg-emerald-600 text-white rounded-lg py-2 text-sm font-medium hover:bg-emerald-700 disabled:opacity-40 transition-colors"
+              >
+                Continue
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Review modal */}
       {showReview && (
@@ -409,7 +469,7 @@ export default function SessionView({
                 onClick={sendSMS}
                 className="flex-1 bg-emerald-600 text-white rounded-lg py-2 text-sm font-medium hover:bg-emerald-700 transition-colors"
               >
-                {session.clients?.phone ? 'Open in SMS →' : 'Copy to Clipboard →'}
+                Open in SMS →
               </button>
             </div>
           </div>

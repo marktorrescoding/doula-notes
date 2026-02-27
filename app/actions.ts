@@ -92,6 +92,11 @@ export async function finishSessionWithSMS(sessionId: string, clientId: string) 
   await setActiveSessions(activeMap)
 }
 
+export async function saveClientPhone(clientId: string, phone: string) {
+  const supabase = await createClient()
+  await supabase.from('clients').update({ phone }).eq('id', clientId)
+}
+
 export async function deleteClient(formData: FormData) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
