@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
-import { startSession, deleteClient } from '@/app/actions'
+import { startSession } from '@/app/actions'
 
 type Client = {
   id: string
@@ -19,14 +19,6 @@ export default function ClientList({
   activeSessionMap: Record<string, string>
 }) {
   const [search, setSearch] = useState('')
-  const [, startTransition] = useTransition()
-
-  function handleDelete(client: Client) {
-    if (!window.confirm(`Delete ${client.name}? This cannot be undone.`)) return
-    const formData = new FormData()
-    formData.append('client_id', client.id)
-    startTransition(() => deleteClient(formData))
-  }
 
   const filtered = clients.filter(c =>
     c.name.toLowerCase().includes(search.toLowerCase())
@@ -53,12 +45,12 @@ export default function ClientList({
               >
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <div className="min-w-0">
-                    <button
-                      onClick={() => handleDelete(client)}
-                      className="font-medium text-stone-800 dark:text-stone-100 hover:text-red-500 dark:hover:text-red-400 transition-colors text-left"
+                    <Link
+                      href={`/clients/${client.id}`}
+                      className="font-medium text-stone-800 dark:text-stone-100 hover:text-stone-600 dark:hover:text-stone-300 transition-colors"
                     >
                       {client.name}
-                    </button>
+                    </Link>
                     {client.phone && (
                       <div className="text-sm text-stone-400 dark:text-stone-500 mt-0.5">{client.phone}</div>
                     )}

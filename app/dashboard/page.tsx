@@ -4,6 +4,8 @@ import Link from 'next/link'
 import { signOut } from '@/app/actions'
 import ClientList from './ClientList'
 
+export const dynamic = 'force-dynamic'
+
 export default async function DashboardPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
