@@ -28,6 +28,15 @@ export async function startSession(formData: FormData) {
   redirect('/dashboard')
 }
 
+export async function deleteClient(formData: FormData) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/login')
+  const clientId = formData.get('client_id') as string
+  await supabase.from('clients').delete().eq('id', clientId).eq('user_id', user.id)
+  redirect('/dashboard')
+}
+
 export async function endSession(formData: FormData) {
   const supabase = await createClient()
   const sessionId = formData.get('session_id') as string

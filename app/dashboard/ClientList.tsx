@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { startSession } from '@/app/actions'
+import { startSession, deleteClient } from '@/app/actions'
 
 type Client = {
   id: string
@@ -59,6 +59,20 @@ export default function ClientList({
                   </div>
 
                   <div className="flex items-center gap-2 shrink-0">
+                    <form
+                      action={deleteClient}
+                      onSubmit={e => {
+                        if (!window.confirm(`Delete ${client.name}? This cannot be undone.`)) e.preventDefault()
+                      }}
+                    >
+                      <input type="hidden" name="client_id" value={client.id} />
+                      <button
+                        type="submit"
+                        className="text-sm font-medium px-3 py-2 rounded-lg border border-red-200 dark:border-red-800 text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950 transition-colors"
+                      >
+                        Delete
+                      </button>
+                    </form>
                     <Link
                       href={`/clients/${client.id}`}
                       className="flex-1 sm:flex-none text-center text-sm font-medium px-3 py-2 rounded-lg border border-stone-200 dark:border-stone-600 text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors"
