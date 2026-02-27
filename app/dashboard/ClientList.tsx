@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useTransition } from 'react'
 import Link from 'next/link'
 import { startSession, deleteClient } from '@/app/actions'
 
@@ -19,6 +19,14 @@ export default function ClientList({
   activeSessionMap: Record<string, string>
 }) {
   const [search, setSearch] = useState('')
+  const [, startTransition] = useTransition()
+
+  function handleDelete(client: Client) {
+    if (!window.confirm(`Delete ${client.name}? This cannot be undone.`)) return
+    const formData = new FormData()
+    formData.append('client_id', client.id)
+    startTransition(() => deleteClient(formData))
+  }
 
   const filtered = clients.filter(c =>
     c.name.toLowerCase().includes(search.toLowerCase())
@@ -45,7 +53,12 @@ export default function ClientList({
               >
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <div className="min-w-0">
-                    <div className="font-medium text-stone-800 dark:text-stone-100">{client.name}</div>
+                    <button
+                      onClick={() => handleDelete(client)}
+                      className="font-medium text-stone-800 dark:text-stone-100 hover:text-red-500 dark:hover:text-red-400 transition-colors text-left"
+                    >
+                      {client.name}
+                    </button>
                     {client.phone && (
                       <div className="text-sm text-stone-400 dark:text-stone-500 mt-0.5">{client.phone}</div>
                     )}
@@ -59,26 +72,6 @@ export default function ClientList({
                   </div>
 
                   <div className="flex items-center gap-2 shrink-0">
-                    <form
-                      action={deleteClient}
-                      onSubmit={e => {
-                        if (!window.confirm(`Delete ${client.name}? This cannot be undone.`)) e.preventDefault()
-                      }}
-                    >
-                      <input type="hidden" name="client_id" value={client.id} />
-                      <button
-                        type="submit"
-                        className="p-2 text-stone-400 dark:text-stone-500 hover:text-red-500 dark:hover:text-red-400 transition-colors"
-                        title="Delete client"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <polyline points="3 6 5 6 21 6" />
-                          <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
-                          <path d="M10 11v6M14 11v6" />
-                          <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
-                        </svg>
-                      </button>
-                    </form>
                     <Link
                       href={`/clients/${client.id}`}
                       className="flex-1 sm:flex-none text-center text-sm font-medium px-3 py-2 rounded-lg border border-stone-200 dark:border-stone-600 text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors"
