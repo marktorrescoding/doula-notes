@@ -8,10 +8,16 @@ export default async function DashboardPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const { data: clients } = await supabase
-    .from('clients')
-    .select('*')
-    .order('name', { ascending: true })
+  const today = new Date().toISOString().split('T')[0]
+
+  const [{ data: clients }, { data: todaySessions }] = await Promise.all([
+    supabase.from('clients').select('*').order('name', { ascending: true }),
+    supabase.from('sessions').select('id, client_id').eq('session_date', today),
+  ])
+
+  const activeSessionMap = new Map(
+    (todaySessions ?? []).map(s => [s.client_id, s.id])
+  )
 
   return (
     <div className="min-h-screen bg-stone-50">
@@ -40,28 +46,52 @@ export default async function DashboardPage() {
 
         {clients && clients.length > 0 ? (
           <div className="flex flex-col gap-3">
-            {clients.map(client => (
-              <div
-                key={client.id}
-                className="bg-white rounded-xl border border-stone-200 px-5 py-4 flex items-center justify-between"
-              >
-                <Link href={`/clients/${client.id}`} className="flex-1 min-w-0">
-                  <div className="font-medium text-stone-800">{client.name}</div>
-                  {client.phone && (
-                    <div className="text-sm text-stone-400 mt-0.5">{client.phone}</div>
-                  )}
-                </Link>
-                <form action={startSession}>
-                  <input type="hidden" name="client_id" value={client.id} />
-                  <button
-                    type="submit"
-                    className="bg-emerald-600 text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors ml-4"
-                  >
-                    Start Session
-                  </button>
-                </form>
-              </div>
-            ))}
+            {clients.map(client => {
+              const activeSessionId = activeSessionMap.get(client.id)
+              return (
+                <div
+                  key={client.id}
+                  className="bg-white rounded-xl border border-stone-200 px-5 py-4"
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="font-medium text-stone-800">{client.name}</div>
+                      {client.phone && (
+                        <div className="text-sm text-stone-400 mt-0.5">{client.phone}</div>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-2 ml-4">
+                      <Link
+                        href={`/clients/${client.id}`}
+                        className="text-sm font-medium px-4 py-2 rounded-lg border border-stone-200 text-stone-600 hover:bg-stone-50 transition-colors"
+                      >
+                        History
+                      </Link>
+
+                      {activeSessionId ? (
+                        <Link
+                          href={`/session/${activeSessionId}`}
+                          className="bg-emerald-600 text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors"
+                        >
+                          Continue Session
+                        </Link>
+                      ) : (
+                        <form action={startSession}>
+                          <input type="hidden" name="client_id" value={client.id} />
+                          <button
+                            type="submit"
+                            className="bg-emerald-600 text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors"
+                          >
+                            Start Session
+                          </button>
+                        </form>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
           </div>
         ) : (
           <div className="text-center py-16 text-stone-400">
