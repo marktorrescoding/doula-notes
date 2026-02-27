@@ -27,7 +27,6 @@ export default function LoginPage() {
         setError(error.message)
         setLoading(false)
       } else if (!data.session) {
-        // Email confirmation required
         setMessage('Check your email for a confirmation link to finish signing up.')
         setLoading(false)
       } else {
@@ -46,41 +45,31 @@ export default function LoginPage() {
     }
   }
 
+  const inputClass = "w-full border border-stone-300 dark:border-stone-600 rounded-lg px-3 py-2 text-sm text-stone-900 dark:text-stone-100 bg-white dark:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-stone-400"
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-stone-50">
-      <div className="w-full max-w-sm bg-white rounded-2xl shadow-sm border border-stone-200 p-8">
-        <h1 className="text-2xl font-semibold text-stone-800 mb-1">Doula Notes</h1>
-        <p className="text-stone-500 text-sm mb-6">
+    <div className="min-h-screen flex items-center justify-center bg-stone-50 dark:bg-stone-950">
+      <div className="w-full max-w-sm bg-white dark:bg-stone-900 rounded-2xl shadow-sm border border-stone-200 dark:border-stone-700 p-8">
+        <h1 className="text-2xl font-semibold text-stone-800 dark:text-stone-100 mb-1">Doula Notes</h1>
+        <p className="text-stone-500 dark:text-stone-400 text-sm mb-6">
           {isSignUp ? 'Create your account' : 'Sign in to continue'}
         </p>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div>
-            <label className="block text-sm font-medium text-stone-700 mb-1">Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              className="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm text-stone-900 bg-white focus:outline-none focus:ring-2 focus:ring-stone-400"
-              required
-            />
+            <label className="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-1">Email</label>
+            <input type="email" value={email} onChange={e => setEmail(e.target.value)} className={inputClass} required />
           </div>
           <div>
-            <label className="block text-sm font-medium text-stone-700 mb-1">Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              className="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm text-stone-900 bg-white focus:outline-none focus:ring-2 focus:ring-stone-400"
-              required
-            />
+            <label className="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-1">Password</label>
+            <input type="password" value={password} onChange={e => setPassword(e.target.value)} className={inputClass} required />
           </div>
           {error && <p className="text-red-500 text-sm">{error}</p>}
-          {message && <p className="text-green-600 text-sm">{message}</p>}
+          {message && <p className="text-emerald-600 dark:text-emerald-400 text-sm">{message}</p>}
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-stone-800 text-white rounded-lg py-2 text-sm font-medium hover:bg-stone-700 disabled:opacity-50 transition-colors"
+            className="w-full bg-stone-800 dark:bg-stone-100 text-white dark:text-stone-900 rounded-lg py-2 text-sm font-medium hover:bg-stone-700 dark:hover:bg-stone-200 disabled:opacity-50 transition-colors"
           >
             {loading ? 'Loading...' : isSignUp ? 'Create Account' : 'Sign In'}
           </button>
@@ -88,7 +77,7 @@ export default function LoginPage() {
 
         <button
           onClick={() => { setIsSignUp(!isSignUp); setError('') }}
-          className="mt-4 text-sm text-stone-500 hover:text-stone-700 w-full text-center transition-colors"
+          className="mt-4 text-sm text-stone-500 dark:text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 w-full text-center transition-colors"
         >
           {isSignUp ? 'Already have an account? Sign in' : "Don't have an account? Sign up"}
         </button>

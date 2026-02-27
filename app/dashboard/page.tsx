@@ -1,7 +1,8 @@
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { signOut, startSession } from '@/app/actions'
+import { signOut } from '@/app/actions'
+import ClientList from './ClientList'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -15,18 +16,18 @@ export default async function DashboardPage() {
     supabase.from('sessions').select('id, client_id').eq('session_date', today),
   ])
 
-  const activeSessionMap = new Map(
+  const activeSessionMap = Object.fromEntries(
     (todaySessions ?? []).map(s => [s.client_id, s.id])
   )
 
   return (
-    <div className="min-h-screen bg-stone-50">
-      <header className="bg-white border-b border-stone-200 px-6 py-4 flex items-center justify-between">
-        <h1 className="text-lg font-semibold text-stone-800">Doula Notes</h1>
+    <div className="min-h-screen bg-stone-50 dark:bg-stone-950">
+      <header className="bg-white dark:bg-stone-900 border-b border-stone-200 dark:border-stone-700 px-6 py-4 flex items-center justify-between">
+        <h1 className="text-lg font-semibold text-stone-800 dark:text-stone-100">Doula Notes</h1>
         <div className="flex items-center gap-4">
           <span className="text-sm text-stone-400">{user.email}</span>
           <form action={signOut}>
-            <button className="text-sm text-stone-500 hover:text-stone-700 transition-colors">
+            <button className="text-sm text-stone-500 dark:text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 transition-colors">
               Sign out
             </button>
           </form>
@@ -35,64 +36,17 @@ export default async function DashboardPage() {
 
       <main className="max-w-2xl mx-auto px-6 py-8">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold text-stone-800">Clients</h2>
+          <h2 className="text-xl font-semibold text-stone-800 dark:text-stone-100">Clients</h2>
           <Link
             href="/clients/new"
-            className="bg-stone-800 text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-stone-700 transition-colors"
+            className="bg-stone-800 dark:bg-stone-100 text-white dark:text-stone-900 text-sm font-medium px-4 py-2 rounded-lg hover:bg-stone-700 dark:hover:bg-stone-200 transition-colors"
           >
             + Add Client
           </Link>
         </div>
 
         {clients && clients.length > 0 ? (
-          <div className="flex flex-col gap-3">
-            {clients.map(client => {
-              const activeSessionId = activeSessionMap.get(client.id)
-              return (
-                <div
-                  key={client.id}
-                  className="bg-white rounded-xl border border-stone-200 px-5 py-4"
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="font-medium text-stone-800">{client.name}</div>
-                      {client.phone && (
-                        <div className="text-sm text-stone-400 mt-0.5">{client.phone}</div>
-                      )}
-                    </div>
-
-                    <div className="flex items-center gap-2 ml-4">
-                      <Link
-                        href={`/clients/${client.id}`}
-                        className="text-sm font-medium px-4 py-2 rounded-lg border border-stone-200 text-stone-600 hover:bg-stone-50 transition-colors"
-                      >
-                        History
-                      </Link>
-
-                      {activeSessionId ? (
-                        <Link
-                          href={`/session/${activeSessionId}`}
-                          className="bg-emerald-600 text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors"
-                        >
-                          Continue Session
-                        </Link>
-                      ) : (
-                        <form action={startSession}>
-                          <input type="hidden" name="client_id" value={client.id} />
-                          <button
-                            type="submit"
-                            className="bg-emerald-600 text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors"
-                          >
-                            Start Session
-                          </button>
-                        </form>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
+          <ClientList clients={clients} activeSessionMap={activeSessionMap} />
         ) : (
           <div className="text-center py-16 text-stone-400">
             <p className="text-lg">No clients yet</p>

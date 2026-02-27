@@ -27,3 +27,10 @@ body {
 
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+@media print {
+  @page { margin: 1in; }
+  header, footer, form, .no-print, nav { display: none !important; }
+  body { background: white !important; color: black !important; }
+  a { color: inherit; text-decoration: none; }
+}
