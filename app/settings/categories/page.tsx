@@ -23,6 +23,14 @@ export default async function CategoriesPage() {
     redirect('/settings/categories')
   }
 
+  async function deleteCategory(formData: FormData) {
+    'use server'
+    const supabase = await createClient()
+    const id = formData.get('category_id') as string
+    await supabase.from('custom_categories').delete().eq('id', id)
+    redirect('/settings/categories')
+  }
+
   return (
     <div className="h-screen flex flex-col overflow-hidden bg-stone-50 dark:bg-stone-950">
       <header className="bg-white dark:bg-stone-900 border-b border-stone-200 dark:border-stone-700 px-6 py-4 flex items-center justify-between">
@@ -63,12 +71,23 @@ export default async function CategoriesPage() {
               <div key={cat.id} className="bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-700 overflow-hidden">
                 <div className="px-5 py-3 flex items-center justify-between border-b border-stone-100 dark:border-stone-700">
                   <span className="font-medium text-stone-800 dark:text-stone-100">{cat.name}</span>
-                  <Link
-                    href={`/settings/categories/${cat.id}`}
-                    className="text-xs text-stone-400 dark:text-stone-500 hover:text-stone-600 dark:hover:text-stone-300 transition-colors"
-                  >
-                    Manage →
-                  </Link>
+                  <div className="flex items-center gap-3">
+                    <Link
+                      href={`/settings/categories/${cat.id}`}
+                      className="text-xs text-stone-400 dark:text-stone-500 hover:text-stone-600 dark:hover:text-stone-300 transition-colors"
+                    >
+                      Manage →
+                    </Link>
+                    <form action={deleteCategory}>
+                      <input type="hidden" name="category_id" value={cat.id} />
+                      <button
+                        type="submit"
+                        className="text-xs text-red-400 hover:text-red-600 dark:hover:text-red-300 transition-colors"
+                      >
+                        Delete
+                      </button>
+                    </form>
+                  </div>
                 </div>
                 {cat.custom_phrases && cat.custom_phrases.length > 0 ? (
                   <div className="px-5 py-3 flex flex-wrap gap-2">

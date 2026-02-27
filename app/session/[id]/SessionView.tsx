@@ -96,6 +96,7 @@ export default function SessionView({
   const [reviewText, setReviewText] = useState('')
   const [showPhonePrompt, setShowPhonePrompt] = useState(false)
   const [phoneInput, setPhoneInput] = useState('')
+  const [clientPhone, setClientPhone] = useState(session.clients?.phone ?? null)
   const inputRef = useRef<HTMLInputElement>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
 
@@ -148,7 +149,7 @@ export default function SessionView({
     setNotes(prev => prev.filter(n => n.id !== noteId))
   }
 
-  function buildReviewText() {
+  function buildReviewText(phone?: string) {
     const date = new Date(session.session_date + 'T00:00:00').toLocaleDateString('en-US', {
       month: 'long', day: 'numeric', year: 'numeric',
     })
@@ -157,7 +158,7 @@ export default function SessionView({
   }
 
   function openReview() {
-    if (!session.clients?.phone) {
+    if (!clientPhone) {
       setShowPhonePrompt(true)
       return
     }
@@ -168,7 +169,7 @@ export default function SessionView({
   async function submitPhone() {
     if (!phoneInput.trim()) return
     await saveClientPhone(session.client_id, phoneInput.trim())
-    session.clients.phone = phoneInput.trim()
+    setClientPhone(phoneInput.trim())
     setShowPhonePrompt(false)
     setReviewText(buildReviewText())
     setShowReview(true)
@@ -176,7 +177,7 @@ export default function SessionView({
 
   async function sendSMS() {
     await finishSessionWithSMS(session.id, session.client_id)
-    window.location.href = `sms:${session.clients.phone}&body=${encodeURIComponent(reviewText)}`
+    window.location.href = `sms:${clientPhone}&body=${encodeURIComponent(reviewText)}`
   }
 
   return (
@@ -377,7 +378,7 @@ export default function SessionView({
                   onClick={openReview}
                   className="w-full bg-emerald-600 text-white rounded-lg py-2.5 text-sm font-medium hover:bg-emerald-700 transition-colors"
                 >
-                  {session.clients?.phone
+                  {clientPhone
                     ? `Finish & Text Notes to ${session.clients.name}`
                     : 'Finish & Text Notes'}
                 </button>
