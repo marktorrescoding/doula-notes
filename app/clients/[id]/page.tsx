@@ -18,6 +18,13 @@ export default async function ClientPage({ params }: { params: Promise<{ id: str
 
   if (!client) notFound()
 
+  async function deleteClient() {
+    'use server'
+    const supabase = await createClient()
+    await supabase.from('clients').delete().eq('id', id)
+    redirect('/dashboard')
+  }
+
   const { data: sessions } = await supabase
     .from('sessions')
     .select('*, session_notes(count)')
@@ -127,7 +134,16 @@ export default async function ClientPage({ params }: { params: Promise<{ id: str
         ) : (
           <p className="text-center py-12 text-stone-400 text-sm">No sessions yet</p>
         )}
-      </div></main>
+
+        <form action={deleteClient} className="mt-8 mb-2">
+          <button
+            type="submit"
+            className="w-full bg-red-50 dark:bg-red-950 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 rounded-lg py-2 text-sm font-medium hover:bg-red-100 dark:hover:bg-red-900 transition-colors"
+          >
+            Delete Client
+          </button>
+        </form>
+      <div className="pb-safe"></div></div></main>
     </div>
   )
 }

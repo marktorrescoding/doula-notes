@@ -32,13 +32,6 @@ export default async function EditClientPage({ params }: { params: Promise<{ id:
     redirect(`/clients/${id}`)
   }
 
-  async function deleteClient() {
-    'use server'
-    const supabase = await createClient()
-    await supabase.from('clients').delete().eq('id', id)
-    redirect('/dashboard')
-  }
-
   const inputClass = "w-full border border-stone-300 dark:border-stone-600 rounded-lg px-3 py-2 text-sm text-stone-900 dark:text-stone-100 bg-white dark:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-stone-400 placeholder:text-stone-400"
 
   return (
@@ -92,15 +85,6 @@ export default async function EditClientPage({ params }: { params: Promise<{ id:
             className="w-full bg-stone-800 dark:bg-stone-100 text-white dark:text-stone-900 rounded-lg py-2 text-sm font-medium hover:bg-stone-700 dark:hover:bg-stone-200 transition-colors"
           >
             Save Changes
-          </button>
-        </form>
-
-        <form action={deleteClient} className="mt-3">
-          <button
-            type="submit"
-            className="w-full bg-red-50 dark:bg-red-950 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 rounded-lg py-2 text-sm font-medium hover:bg-red-100 dark:hover:bg-red-900 transition-colors"
-          >
-            Delete Client
           </button>
         </form>
       <div className="pb-safe"></div></div></main>
