@@ -165,9 +165,9 @@ export default function SessionView({
     <>
       <div className="h-screen bg-stone-50 dark:bg-stone-950 flex flex-col print:bg-white overflow-hidden">
         <header className="bg-white dark:bg-stone-900 border-b border-stone-200 dark:border-stone-700 px-6 py-4 flex items-center justify-between print:hidden pt-safe shrink-0">
-          <Link href="/dashboard" className="text-sm text-stone-500 dark:text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 transition-colors">
+          <a href="/dashboard" className="text-sm text-stone-500 dark:text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 transition-colors">
             ← Clients
-          </Link>
+          </a>
           <div className="flex items-center gap-3">
             <button
               onClick={() => window.print()}

@@ -19,7 +19,7 @@ export async function startSession(formData: FormData) {
   const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0]
 
   // If there's already an active session within the last 24h, continue it
-  const { data: existing } = await supabase
+  const { data: openSessions } = await supabase
     .from('sessions')
     .select('id')
     .eq('client_id', clientId)
@@ -28,9 +28,8 @@ export async function startSession(formData: FormData) {
     .gte('session_date', yesterday)
     .order('session_date', { ascending: false })
     .limit(1)
-    .maybeSingle()
 
-  if (existing) redirect(`/session/${existing.id}`)
+  if (openSessions && openSessions.length > 0) redirect(`/session/${openSessions[0].id}`)
 
   // Auto-end any stale open sessions older than 24h
   await supabase
