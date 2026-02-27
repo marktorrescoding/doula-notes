@@ -53,6 +53,18 @@ export default async function DashboardPage() {
             <p className="text-sm mt-1">Add your first client to get started</p>
           </div>
         )}
+
+        <div className="mt-12 pt-6 border-t border-stone-200 dark:border-stone-800 flex items-center justify-center gap-6">
+          <Link href="/settings/categories" className="text-xs text-stone-400 dark:text-stone-500 hover:text-stone-600 dark:hover:text-stone-300 transition-colors">
+            Note Categories
+          </Link>
+          <Link href="/feedback" className="text-xs text-stone-400 dark:text-stone-500 hover:text-stone-600 dark:hover:text-stone-300 transition-colors">
+            Feedback
+          </Link>
+          <Link href="/privacy" className="text-xs text-stone-400 dark:text-stone-500 hover:text-stone-600 dark:hover:text-stone-300 transition-colors">
+            Privacy Policy
+          </Link>
+        </div>
       </main>
     </div>
   )

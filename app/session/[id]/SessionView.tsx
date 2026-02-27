@@ -8,7 +8,13 @@ type Note = { id: string; content: string; created_at: string }
 type Session = {
   id: string
   session_date: string
+  client_id: string
   clients: { name: string; phone: string | null }
+}
+type CustomCategory = {
+  id: string
+  name: string
+  custom_phrases: { id: string; content: string }[]
 }
 
 const QUICK_NOTES: Record<string, string[]> = {
@@ -68,14 +74,16 @@ const QUICK_NOTES: Record<string, string[]> = {
   ],
 }
 
-const CATEGORIES = Object.keys(QUICK_NOTES)
+const BUILT_IN_CATEGORIES = Object.keys(QUICK_NOTES)
 
 export default function SessionView({
   session,
   initialNotes,
+  customCategories,
 }: {
   session: Session
   initialNotes: Note[]
+  customCategories: CustomCategory[]
 }) {
   const [notes, setNotes] = useState<Note[]>(initialNotes)
   const [input, setInput] = useState('')
@@ -253,7 +261,7 @@ export default function SessionView({
           <div className="flex flex-col gap-3 print:hidden">
             {/* Category tabs */}
             <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
-              {CATEGORIES.map(cat => (
+              {BUILT_IN_CATEGORIES.map(cat => (
                 <button
                   key={cat}
                   onClick={() => setActiveCategory(activeCategory === cat ? null : cat)}
@@ -266,21 +274,48 @@ export default function SessionView({
                   {cat}
                 </button>
               ))}
+              {customCategories.map(cat => (
+                <button
+                  key={cat.id}
+                  onClick={() => setActiveCategory(activeCategory === cat.id ? null : cat.id)}
+                  className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                    activeCategory === cat.id
+                      ? 'bg-emerald-700 text-white'
+                      : 'bg-white dark:bg-stone-800 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400 hover:border-emerald-300'
+                  }`}
+                >
+                  {cat.name}
+                </button>
+              ))}
             </div>
 
             {/* Quick-tap phrases */}
             {activeCategory && (
               <div className="flex flex-wrap gap-2">
-                {QUICK_NOTES[activeCategory].map(phrase => (
-                  <button
-                    key={phrase}
-                    onClick={() => saveNote(phrase)}
-                    disabled={adding}
-                    className="px-3 py-1.5 bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-200 text-xs rounded-lg transition-colors disabled:opacity-40 text-left"
-                  >
-                    {phrase}
-                  </button>
-                ))}
+                {QUICK_NOTES[activeCategory]
+                  ? QUICK_NOTES[activeCategory].map(phrase => (
+                      <button
+                        key={phrase}
+                        onClick={() => saveNote(phrase)}
+                        disabled={adding}
+                        className="px-3 py-1.5 bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-200 text-xs rounded-lg transition-colors disabled:opacity-40 text-left"
+                      >
+                        {phrase}
+                      </button>
+                    ))
+                  : customCategories
+                      .find(c => c.id === activeCategory)
+                      ?.custom_phrases.map(phrase => (
+                        <button
+                          key={phrase.id}
+                          onClick={() => saveNote(phrase.content)}
+                          disabled={adding}
+                          className="px-3 py-1.5 bg-emerald-50 dark:bg-emerald-950 hover:bg-emerald-100 dark:hover:bg-emerald-900 text-emerald-700 dark:text-emerald-300 text-xs rounded-lg transition-colors disabled:opacity-40 text-left border border-emerald-100 dark:border-emerald-800"
+                        >
+                          {phrase.content}
+                        </button>
+                      ))
+                }
               </div>
             )}
 
@@ -311,6 +346,12 @@ export default function SessionView({
                 Finish Session — Text Notes to {session.clients.name}
               </button>
             )}
+            <a
+              href={`/clients/${session.client_id}`}
+              className="w-full text-center block text-sm text-stone-400 dark:text-stone-500 hover:text-stone-600 dark:hover:text-stone-300 py-1 transition-colors"
+            >
+              End session without texting
+            </a>
           </div>
         </main>
       </div>
