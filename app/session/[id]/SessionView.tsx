@@ -157,7 +157,12 @@ export default function SessionView({
 
   async function sendSMS() {
     await finishSessionWithSMS(session.id, session.client_id)
-    window.location.href = `sms:${session.clients.phone}&body=${encodeURIComponent(reviewText)}`
+    if (session.clients?.phone) {
+      window.location.href = `sms:${session.clients.phone}&body=${encodeURIComponent(reviewText)}`
+    } else {
+      await navigator.clipboard.writeText(reviewText)
+      window.location.href = '/dashboard'
+    }
   }
 
   return (
@@ -346,12 +351,14 @@ export default function SessionView({
               </button>
             </form>
 
-            {notes.length > 0 && session.clients.phone && (
+            {notes.length > 0 && (
               <button
                 onClick={openReview}
                 className="w-full bg-emerald-600 text-white rounded-lg py-3 text-sm font-medium hover:bg-emerald-700 transition-colors"
               >
-                Finish Session — Text Notes to {session.clients.name}
+                {session.clients?.phone
+                  ? `Finish Session — Text Notes to ${session.clients.name}`
+                  : 'Finish Session — Copy Notes'}
               </button>
             )}
             <form action={endSession} className="w-full">
@@ -402,7 +409,7 @@ export default function SessionView({
                 onClick={sendSMS}
                 className="flex-1 bg-emerald-600 text-white rounded-lg py-2 text-sm font-medium hover:bg-emerald-700 transition-colors"
               >
-                Open in SMS →
+                {session.clients?.phone ? 'Open in SMS →' : 'Copy to Clipboard →'}
               </button>
             </div>
           </div>

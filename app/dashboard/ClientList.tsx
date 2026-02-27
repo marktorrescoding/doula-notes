@@ -55,7 +55,7 @@ export default function ClientList({
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <div className="min-w-0">
                     <Link
-                      href={`/clients/${client.id}`}
+                      href={`/clients/${client.id}/edit`}
                       className="font-medium text-stone-800 dark:text-stone-100 hover:text-stone-600 dark:hover:text-stone-300 transition-colors"
                     >
                       {client.name}
