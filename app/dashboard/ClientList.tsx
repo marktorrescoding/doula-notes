@@ -43,7 +43,7 @@ export default function ClientList({
                 key={client.id}
                 className="bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-700 px-5 py-4"
               >
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <div className="min-w-0">
                     <div className="font-medium text-stone-800 dark:text-stone-100">{client.name}</div>
                     {client.phone && (
@@ -58,28 +58,28 @@ export default function ClientList({
                     )}
                   </div>
 
-                  <div className="flex items-center gap-2 ml-4 shrink-0">
+                  <div className="flex items-center gap-2 shrink-0">
                     <Link
                       href={`/clients/${client.id}`}
-                      className="text-sm font-medium px-3 py-2 rounded-lg border border-stone-200 dark:border-stone-600 text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors"
+                      className="flex-1 sm:flex-none text-center text-sm font-medium px-3 py-2 rounded-lg border border-stone-200 dark:border-stone-600 text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors"
                     >
                       History
                     </Link>
                     {activeSessionId ? (
                       <Link
                         href={`/session/${activeSessionId}`}
-                        className="bg-emerald-600 text-white text-sm font-medium px-3 py-2 rounded-lg hover:bg-emerald-700 transition-colors"
+                        className="flex-1 sm:flex-none text-center bg-emerald-600 text-white text-sm font-medium px-3 py-2 rounded-lg hover:bg-emerald-700 transition-colors"
                       >
                         Continue
                       </Link>
                     ) : (
-                      <form action={startSession}>
+                      <form action={startSession} className="flex-1 sm:flex-none">
                         <input type="hidden" name="client_id" value={client.id} />
                         <button
                           type="submit"
-                          className="bg-emerald-600 text-white text-sm font-medium px-3 py-2 rounded-lg hover:bg-emerald-700 transition-colors"
+                          className="w-full bg-emerald-600 text-white text-sm font-medium px-3 py-2 rounded-lg hover:bg-emerald-700 transition-colors"
                         >
-                          Start
+                          Start Session
                         </button>
                       </form>
                     )}

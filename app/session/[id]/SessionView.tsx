@@ -231,7 +231,7 @@ export default function SessionView({
                     ) : (
                       <div className="flex-1 flex items-start justify-between gap-2">
                         <span className="text-stone-800 dark:text-stone-100 print:text-stone-900">{note.content}</span>
-                        <div className="flex gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity print:hidden">
+                        <div className="flex gap-1 shrink-0 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity print:hidden">
                           <button
                             onClick={() => startEdit(note)}
                             className="p-1 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200"
