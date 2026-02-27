@@ -22,6 +22,16 @@ export default function ClientList({
   const [activeSessionMap, setActiveSessionMap] = useState(initialActiveSessionMap)
   const [loading, setLoading] = useState<string | null>(null)
 
+  useEffect(() => {
+    // If the browser restores this page from bfcache (back button),
+    // the server data is stale — force a real reload to get fresh session state
+    const handlePageShow = (e: PageTransitionEvent) => {
+      if (e.persisted) window.location.reload()
+    }
+    window.addEventListener('pageshow', handlePageShow)
+    return () => window.removeEventListener('pageshow', handlePageShow)
+  }, [])
+
   async function handleStart(clientId: string) {
     setLoading(clientId)
     const supabase = createClient()
